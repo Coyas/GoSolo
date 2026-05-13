@@ -1,14 +1,16 @@
-FROM gradle:8.7-jdk17-alpine AS build
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 
 COPY gradlew .
 COPY gradle gradle
+RUN chmod +x gradlew
+
 COPY build.gradle .
 COPY settings.gradle .
-RUN gradle dependencies --no-daemon
+RUN ./gradlew dependencies --no-daemon
 
 COPY src src
-RUN gradle bootJar --no-daemon
+RUN ./gradlew bootJar --no-daemon
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
