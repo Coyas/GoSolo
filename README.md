@@ -33,8 +33,8 @@ docker compose up --build
 | Serviço     | URL                                   |
 | ----------- | ------------------------------------- |
 | Frontend    | http://localhost:3000                 |
-| Backend API | http://localhost:8080/api/v1          |
-| Swagger UI  | http://localhost:8080/swagger-ui.html |
+| Backend API | http://localhost:8085/api/v1          |
+| Swagger UI  | http://localhost:8085/swagger-ui.html |
 | PostgreSQL  | localhost:5432                        |
 
 Para parar:
@@ -67,7 +67,7 @@ docker compose down -v
 
 | Variável              | Descrição       | Exemplo                        |
 | --------------------- | --------------- | ------------------------------ |
-| `NEXT_PUBLIC_API_URL` | URL base da API | `http://localhost:8080/api/v1` |
+| `NEXT_PUBLIC_API_URL` | URL base da API | `http://localhost:8085/api/v1` |
 
 ---
 
@@ -76,7 +76,7 @@ docker compose down -v
 Após iniciar o backend, acede ao Swagger UI:
 
 ```
-http://localhost:8080/swagger-ui.html
+http://localhost:8085/swagger-ui.html
 ```
 
 ---
