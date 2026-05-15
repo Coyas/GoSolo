@@ -14,8 +14,19 @@ public class AuthResponse {
         this.name = name;
     }
 
-    public String getToken() { return token; }
-    public String getRole() { return role; }
-    public Long getUserId() { return userId; }
-    public String getName() { return name; }
+    public String getToken() {
+        return token;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

@@ -37,15 +37,47 @@ public class VacationRequestResponse {
         return dto;
     }
 
-    public Long getId() { return id; }
-    public Long getUserId() { return userId; }
-    public String getUserName() { return userName; }
-    public Long getUserManagerId() { return userManagerId; }
-    public String getStartDate() { return startDate; }
-    public String getEndDate() { return endDate; }
-    public VacationStatus getStatus() { return status; }
-    public Long getReviewedById() { return reviewedById; }
-    public String getReviewedByName() { return reviewedByName; }
-    public LocalDateTime getReviewedAt() { return reviewedAt; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
+    public Long getId() {
+        return id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public Long getUserManagerId() {
+        return userManagerId;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public VacationStatus getStatus() {
+        return status;
+    }
+
+    public Long getReviewedById() {
+        return reviewedById;
+    }
+
+    public String getReviewedByName() {
+        return reviewedByName;
+    }
+
+    public LocalDateTime getReviewedAt() {
+        return reviewedAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 }

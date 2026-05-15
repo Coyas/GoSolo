@@ -29,11 +29,31 @@ public class UserResponse {
         return dto;
     }
 
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public String getEmail() { return email; }
-    public Role getRole() { return role; }
-    public Long getManagerId() { return managerId; }
-    public String getManagerName() { return managerName; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public Long getManagerId() {
+        return managerId;
+    }
+
+    public String getManagerName() {
+        return managerName;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 }

@@ -57,7 +57,7 @@ public class VacationRequestController {
     @Operation(summary = "Criar pedido de férias")
     @PostMapping
     public ResponseEntity<VacationRequestResponse> create(@Valid @RequestBody VacationRequestRequest body,
-                                                          Authentication auth) {
+            Authentication auth) {
         User currentUser = currentUser(auth);
         if (currentUser.getRole() != Role.ADMIN) {
             body.setUserId(currentUser.getId());
@@ -68,8 +68,8 @@ public class VacationRequestController {
     @Operation(summary = "Actualizar pedido de férias", description = "Apenas o próprio utilizador pode editar o seu pedido. Só é possível editar pedidos com estado PENDING.")
     @PutMapping("/{id}")
     public ResponseEntity<VacationRequestResponse> update(@PathVariable Long id,
-                                                          @Valid @RequestBody VacationRequestRequest body,
-                                                          Authentication auth) {
+            @Valid @RequestBody VacationRequestRequest body,
+            Authentication auth) {
         User currentUser = currentUser(auth);
         VacationRequestResponse existing = vacationRequestService.findById(id);
         if (!existing.getUserId().equals(currentUser.getId())) {
@@ -109,12 +109,14 @@ public class VacationRequestController {
     }
 
     private void validateReadAccess(User currentUser, VacationRequestResponse request) {
-        if (currentUser.getRole() == Role.ADMIN) return;
+        if (currentUser.getRole() == Role.ADMIN)
+            return;
         if (currentUser.getRole() == Role.MANAGER) {
             boolean isOwn = request.getUserId().equals(currentUser.getId());
             boolean isCollaborator = request.getUserManagerId() != null &&
                     request.getUserManagerId().equals(currentUser.getId());
-            if (!isOwn && !isCollaborator) throw new ForbiddenException("Access denied");
+            if (!isOwn && !isCollaborator)
+                throw new ForbiddenException("Access denied");
             return;
         }
         if (!request.getUserId().equals(currentUser.getId())) {
@@ -123,7 +125,8 @@ public class VacationRequestController {
     }
 
     private void validateWriteAccess(User currentUser, VacationRequestResponse request) {
-        if (currentUser.getRole() == Role.ADMIN) return;
+        if (currentUser.getRole() == Role.ADMIN)
+            return;
         if (!request.getUserId().equals(currentUser.getId())) {
             throw new ForbiddenException("Access denied");
         }

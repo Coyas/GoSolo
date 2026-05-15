@@ -52,7 +52,7 @@ public class UserController {
     @Operation(summary = "Actualizar utilizador")
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> update(@PathVariable Long id,
-                                               @Valid @RequestBody UserRequest request) {
+            @Valid @RequestBody UserRequest request) {
         return ResponseEntity.ok(UserResponse.from(userService.update(id, request)));
     }
 
