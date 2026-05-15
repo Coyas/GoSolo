@@ -6,13 +6,13 @@ Sistema interno da TaskFlow Ltda. para gestão de colaboradores e pedidos de fé
 
 ## Stack
 
-| Camada        | Tecnologia              |
-| ------------- | ----------------------- |
-| Frontend      | Next.js                 |
-| Backend       | Spring Boot 4 (Java 17) |
-| Base de dados | PostgreSQL              |
-| Autenticação  | JWT                     |
-| Infra         | Docker Compose          |
+| Camada        | Tecnologia                              |
+| ------------- | --------------------------------------- |
+| Frontend      | Next.js 16, shadcn/ui, react-hook-form  |
+| Backend       | Spring Boot 4 (Java 17, Gradle)         |
+| Base de dados | PostgreSQL 16                           |
+| Autenticação  | JWT (jjwt 0.12.6)                       |
+| Infra         | Docker Compose                          |
 
 ---
 
@@ -75,9 +75,9 @@ docker exec gosolo-db-1 psql -U postgres -d gosolo -c "\dt"
 
 ### Frontend (`wgosolo/.env.local`)
 
-| Variável              | Descrição       | Exemplo                        |
-| --------------------- | --------------- | ------------------------------ |
-| `NEXT_PUBLIC_API_URL` | URL base da API | `http://localhost:8085/api/v1` |
+| Variável              | Descrição       | Exemplo                   |
+| --------------------- | --------------- | ------------------------- |
+| `NEXT_PUBLIC_API_URL` | URL base da API | `http://localhost:8085`   |
 
 ---
 
@@ -91,12 +91,12 @@ Para ligar ao servidor PostgreSQL:
 2. No separador **General**, define um nome (ex: `gosolo`)
 3. No separador **Connection**, preenche:
 
-| Campo    | Valor                      |
-| -------- | -------------------------- |
-| Host     | `db`                       |
-| Port     | `5432`                     |
-| Database | `gosolo`                   |
-| Username | valor de `DB_USER` no .env |
+| Campo    | Valor                          |
+| -------- | ------------------------------ |
+| Host     | `db`                           |
+| Port     | `5432`                         |
+| Database | `gosolo`                       |
+| Username | valor de `DB_USER` no .env     |
 | Password | valor de `DB_PASSWORD` no .env |
 
 4. Clica **Save**
@@ -111,15 +111,77 @@ Após iniciar o backend, acede ao Swagger UI:
 http://localhost:8085/swagger-ui.html
 ```
 
+A documentação inclui todos os endpoints com os seus schemas de request/response, códigos de estado e requisitos de autorização. Para testar endpoints autenticados, clica em **Authorize** e introduz o token JWT obtido no login (`Bearer <token>`).
+
+### Endpoints principais
+
+| Método   | Endpoint                              | Descrição                        | Roles                        |
+| -------- | ------------------------------------- | -------------------------------- | ---------------------------- |
+| `POST`   | `/api/v1/auth/login`                  | Login — devolve token, role, userId, name | Público             |
+| `GET`    | `/api/v1/users`                       | Listar colaboradores             | ADMIN                        |
+| `POST`   | `/api/v1/users`                       | Criar colaborador                | ADMIN                        |
+| `PUT`    | `/api/v1/users/{id}`                  | Actualizar colaborador           | ADMIN                        |
+| `DELETE` | `/api/v1/users/{id}`                  | Remover colaborador              | ADMIN                        |
+| `GET`    | `/api/v1/vacation-requests`           | Listar pedidos (filtrado por role) | Autenticado                |
+| `POST`   | `/api/v1/vacation-requests`           | Criar pedido de férias           | Autenticado                  |
+| `PUT`    | `/api/v1/vacation-requests/{id}`      | Editar pedido (só dono, PENDING) | Dono do pedido               |
+| `DELETE` | `/api/v1/vacation-requests/{id}`      | Cancelar pedido (PENDING)        | Dono ou ADMIN                |
+| `PATCH`  | `/api/v1/vacation-requests/{id}/approve` | Aprovar pedido               | ADMIN, MANAGER               |
+| `PATCH`  | `/api/v1/vacation-requests/{id}/reject`  | Rejeitar pedido              | ADMIN, MANAGER               |
+
+---
+
+## Funcionalidades do Frontend
+
+| Área                  | Detalhe                                                                 |
+| --------------------- | ----------------------------------------------------------------------- |
+| Autenticação          | Login com JWT; sessão em localStorage; redirect automático se expirada; nome do utilizador na navbar |
+| Listagem de férias    | Filtro por colaborador e por estado; paginação (8 por página)           |
+| Listagem de colaboradores | Filtro por nome/email e por role; paginação (8 por página)          |
+| Pedidos de férias     | Criar, editar (só dono / PENDING), cancelar, aprovar, rejeitar          |
+| Colaboradores         | Criar, editar, remover (só ADMIN)                                       |
+| Controlo de acesso    | Menus e botões condicionais por role; redirect se sem permissão         |
+| Feedback              | Toasts de sucesso e erro (sonner); loading state nas listagens          |
+
+---
+
+## Arquitectura do Backend
+
+O backend segue a arquitectura em camadas:
+
+```
+Controller → Service → Repository → Base de dados
+```
+
+| Camada         | Responsabilidade                                      |
+| -------------- | ----------------------------------------------------- |
+| **Controller** | Recebe pedidos HTTP, valida input, devolve resposta   |
+| **Service**    | Contém a lógica de negócio e as regras de autorização |
+| **Repository** | Acesso à base de dados via JPA                        |
+| **Model**      | Representação das entidades da base de dados          |
+
+---
+
+## Regras de Negócio
+
+- Um colaborador não pode ter dois pedidos seus sobrepostos (PENDING ou APPROVED) — verificado na criação
+- Dois colaboradores diferentes não podem ter férias aprovadas no mesmo período — verificado na aprovação
+- Só é possível editar ou cancelar pedidos com status `PENDING`
+- Apenas o próprio utilizador pode editar o seu pedido (nem admins podem editar pedidos alheios)
+- Pedidos `APPROVED` não podem ser cancelados
+- Apenas o manager responsável ou um admin pode aprovar/rejeitar pedidos
+- Um manager não pode aprovar as suas próprias férias
+- Um manager vê as suas próprias férias e as dos seus colaboradores directos
+
 ---
 
 ## Roles
 
-| Role           | Permissões                                     |
-| -------------- | ---------------------------------------------- |
-| `ADMIN`        | Gestão total de utilizadores e férias          |
-| `MANAGER`      | Aprova/rejeita férias dos seus colaboradores   |
-| `COLLABORATOR` | Cria e gere os seus próprios pedidos de férias |
+| Role           | Permissões                                                                         |
+| -------------- | ---------------------------------------------------------------------------------- |
+| `ADMIN`        | Gestão total de utilizadores e férias                                              |
+| `MANAGER`      | Gere os seus próprios pedidos de férias; aprova/rejeita férias dos colaboradores   |
+| `COLLABORATOR` | Cria e gere os seus próprios pedidos de férias                                     |
 
 ---
 
@@ -131,32 +193,32 @@ O sistema tem duas tabelas relacionadas entre si.
 
 Armazena todos os utilizadores do sistema independentemente do role.
 
-| Coluna | Tipo | Descrição |
-| --- | --- | --- |
-| `id` | BIGSERIAL PK | Identificador único |
-| `name` | VARCHAR(100) | Nome do utilizador |
-| `email` | VARCHAR(150) | Email único, usado para login |
-| `password` | VARCHAR(255) | Password encriptada com BCrypt |
-| `role` | VARCHAR(20) | `ADMIN`, `MANAGER` ou `COLLABORATOR` |
+| Coluna       | Tipo              | Descrição                                       |
+| ------------ | ----------------- | ----------------------------------------------- |
+| `id`         | BIGSERIAL PK      | Identificador único                             |
+| `name`       | VARCHAR(100)      | Nome do utilizador                              |
+| `email`      | VARCHAR(150)      | Email único, usado para login                   |
+| `password`   | VARCHAR(255)      | Password encriptada com BCrypt                  |
+| `role`       | VARCHAR(20)       | `ADMIN`, `MANAGER` ou `COLLABORATOR`            |
 | `manager_id` | BIGINT FK → users | Manager responsável (null para ADMIN e MANAGER) |
-| `created_at` | TIMESTAMP | Data de criação do registo |
+| `created_at` | TIMESTAMP         | Data de criação do registo                      |
 
 ### `vacation_requests`
 
 Armazena todos os pedidos de férias criados pelos colaboradores.
 
-| Coluna | Tipo | Descrição |
-| --- | --- | --- |
-| `id` | BIGSERIAL PK | Identificador único |
-| `user_id` | BIGINT FK → users | Colaborador que fez o pedido |
-| `start_date` | DATE | Data de início das férias (inclusiva) |
-| `end_date` | DATE | Data de fim das férias (inclusiva) |
-| `status` | VARCHAR(20) | `PENDING`, `APPROVED` ou `REJECTED` |
+| Coluna        | Tipo              | Descrição                                                      |
+| ------------- | ----------------- | -------------------------------------------------------------- |
+| `id`          | BIGSERIAL PK      | Identificador único                                            |
+| `user_id`     | BIGINT FK → users | Colaborador que fez o pedido                                   |
+| `start_date`  | DATE              | Data de início das férias (inclusiva)                          |
+| `end_date`    | DATE              | Data de fim das férias (inclusiva)                             |
+| `status`      | VARCHAR(20)       | `PENDING`, `APPROVED` ou `REJECTED`                            |
 | `reviewed_by` | BIGINT FK → users | Manager ou admin que aprovou/rejeitou (null enquanto pendente) |
-| `reviewed_at` | TIMESTAMP | Data da decisão (null enquanto pendente) |
-| `created_at` | TIMESTAMP | Data de criação do pedido |
+| `reviewed_at` | TIMESTAMP         | Data da decisão (null enquanto pendente)                       |
+| `created_at`  | TIMESTAMP         | Data de criação do pedido                                      |
 
-> **Regra de negócio:** dois colaboradores não podem ter férias sobrepostas no mesmo dia. Esta validação é feita na camada de serviço.
+> **Regra de negócio:** cada utilizador não pode ter dois pedidos de férias sobrepostos (PENDING ou APPROVED). A validação é feita na camada de serviço tanto na criação como na aprovação.
 
 ---
 
