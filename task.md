@@ -62,3 +62,11 @@
 - [x] `tests.md` — testes sugeridos para backend (auth, users, vacation-requests)
 - [x] `tests.md` — secção "Testes do PDF" com 33 cenários mapeados ao enunciado LBC
 - [x] `tests-frontend.md` — testes sugeridos para frontend (UI, fluxos, controlo de acesso)
+- [x] Testes unitários backend — `VacationRequestServiceTest` (14 testes, Mockito)
+- [x] Testes unitários backend — `UserServiceTest` (9 testes, Mockito)
+- [x] Testes de repositório backend — `VacationRequestRepositoryTest` (16 testes, @DataJpaTest + H2)
+- [x] Teste de contexto — `GosoloApplicationTests` (1 teste, @SpringBootTest + H2 + @MockitoBean Flyway)
+- [x] Comentários backend — service, repository, filtro JWT, controller, DTO, exception handler
+- [x] Testes unitários frontend — `auth.test.ts` (9 testes, Jest + jsdom)
+- [x] Testes unitários frontend — `api.test.ts` (7 testes, Jest + mock fetch)
+- [x] Comentários frontend — `api.ts`, `auth.ts`, polling nas listagens
