@@ -24,9 +24,9 @@ export default function DashboardLayout({
 	if (!ready) return null;
 
 	return (
-		<div className="min-h-screen bg-zinc-50">
+		<div className="min-h-screen bg-slate-50/60">
 			<Navbar />
-			<main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+			<main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
 		</div>
 	);
 }
