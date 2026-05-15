@@ -234,6 +234,42 @@ As migrations são geridas pelo Flyway e correm automaticamente ao iniciar o bac
 
 ---
 
+## Testes
+
+### Backend
+
+```bash
+cd gosolo
+./gradlew test
+```
+
+41 testes no total, divididos em três classes:
+
+| Classe | Tipo | Testes |
+|---|---|---|
+| `VacationRequestServiceTest` | Unitário (Mockito) | 14 — create, approve, reject, cancel, update |
+| `UserServiceTest` | Unitário (Mockito) | 9 — create, findById, delete |
+| `VacationRequestRepositoryTest` | Repositório (@DataJpaTest + H2) | 16 — queries JPQL de sobreposição |
+| `GosoloApplicationTests` | Contexto (@SpringBootTest + H2) | 1 — context loads |
+
+Os testes de repositório correm com H2 em memória (Flyway desligado, schema gerado pelo Hibernate). Não requerem PostgreSQL.
+
+### Frontend
+
+```bash
+cd wgosolo
+npm test
+```
+
+16 testes no total:
+
+| Ficheiro | Testes |
+|---|---|
+| `auth.test.ts` | 9 — getSession (válida, expirada, malformed), saveSession, clearSession, getToken, getUserId |
+| `api.test.ts` | 7 — Authorization header, 200, erro backend, 401 limpa sessão, 204 → undefined, POST body |
+
+---
+
 ## Dados iniciais (seed)
 
 Na primeira execução, o Flyway insere automaticamente os seguintes utilizadores:
