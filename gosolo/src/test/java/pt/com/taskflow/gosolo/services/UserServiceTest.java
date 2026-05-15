@@ -57,7 +57,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.create(req))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Password is required");
+                .hasMessageContaining("Password obrigatória");
     }
 
     @Test
@@ -67,7 +67,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.create(req))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Password is required");
+                .hasMessageContaining("Password obrigatória");
     }
 
     @Test
@@ -78,7 +78,7 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.create(req))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Email already in use");
+                .hasMessageContaining("Email já está em uso");
     }
 
     @Test

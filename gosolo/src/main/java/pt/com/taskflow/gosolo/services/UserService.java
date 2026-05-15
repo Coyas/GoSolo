@@ -31,13 +31,13 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado: " + id));
     }
 
     @Transactional(readOnly = true)
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado: " + email));
     }
 
     @Transactional(readOnly = true)
@@ -47,10 +47,10 @@ public class UserService {
 
     public User create(UserRequest request) {
         if (request.getPassword() == null || request.getPassword().isBlank()) {
-            throw new BusinessException("Password is required");
+            throw new BusinessException("Password obrigatória");
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BusinessException("Email already in use");
+            throw new BusinessException("Email já está em uso");
         }
         User user = new User();
         user.setName(request.getName());

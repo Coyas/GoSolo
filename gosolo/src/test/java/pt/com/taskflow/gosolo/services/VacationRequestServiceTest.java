@@ -119,7 +119,7 @@ class VacationRequestServiceTest {
 
         assertThatThrownBy(() -> vacationRequestService.approve(100L, 10L))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Only pending requests can be approved");
+                .hasMessageContaining("Só é possível aprovar pedidos pendentes");
     }
 
     @Test
@@ -202,7 +202,7 @@ class VacationRequestServiceTest {
 
         assertThatThrownBy(() -> vacationRequestService.reject(100L, 10L))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Only pending requests can be rejected");
+                .hasMessageContaining("Só é possível rejeitar pedidos pendentes");
     }
 
     @Test
@@ -234,7 +234,7 @@ class VacationRequestServiceTest {
 
         assertThatThrownBy(() -> vacationRequestService.cancel(100L))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Approved requests cannot be cancelled");
+                .hasMessageContaining("Não é possível cancelar pedidos aprovados");
     }
 
     @Test
@@ -264,7 +264,7 @@ class VacationRequestServiceTest {
 
         assertThatThrownBy(() -> vacationRequestService.update(100L, req))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Only pending requests can be updated");
+                .hasMessageContaining("Só é possível alterar pedidos pendentes");
     }
 
     @Test
@@ -279,7 +279,7 @@ class VacationRequestServiceTest {
 
         assertThatThrownBy(() -> vacationRequestService.update(100L, req))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("overlap");
+                .hasMessageContaining("coincidem");
     }
 
     // -------------------------------------------------------------------------

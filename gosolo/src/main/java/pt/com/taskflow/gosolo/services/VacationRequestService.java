@@ -75,11 +75,11 @@ public class VacationRequestService {
     public VacationRequestResponse update(Long id, VacationRequestRequest updated) {
         VacationRequest existing = findEntity(id);
         if (existing.getStatus() != VacationStatus.PENDING) {
-            throw new BusinessException("Only pending requests can be updated");
+            throw new BusinessException("Só é possível alterar pedidos pendentes");
         }
         if (vacationRequestRepository.existsOverlappingApprovedVacationExcludingRequest(
                 existing.getId(), existing.getUser().getId(), updated.getStartDate(), updated.getEndDate())) {
-            throw new BusinessException("Vacation dates overlap with an approved request");
+            throw new BusinessException("As datas coincidem com um pedido já aprovado");
         }
         existing.setStartDate(updated.getStartDate());
         existing.setEndDate(updated.getEndDate());
@@ -94,7 +94,7 @@ public class VacationRequestService {
             validateManagerOwnership(reviewer, request);
         }
         if (request.getStatus() != VacationStatus.PENDING) {
-            throw new BusinessException("Only pending requests can be approved");
+            throw new BusinessException("Só é possível aprovar pedidos pendentes");
         }
         // regra global do PDF: não pode ter dois colaboradores aprovados no mesmo
         // período
@@ -115,7 +115,7 @@ public class VacationRequestService {
             validateManagerOwnership(reviewer, request);
         }
         if (request.getStatus() != VacationStatus.PENDING) {
-            throw new BusinessException("Only pending requests can be rejected");
+            throw new BusinessException("Só é possível rejeitar pedidos pendentes");
         }
         request.setStatus(VacationStatus.REJECTED);
         request.setReviewedBy(reviewer);
@@ -126,14 +126,14 @@ public class VacationRequestService {
     public void cancel(Long id) {
         VacationRequest request = findEntity(id);
         if (request.getStatus() == VacationStatus.APPROVED) {
-            throw new BusinessException("Approved requests cannot be cancelled");
+            throw new BusinessException("Não é possível cancelar pedidos aprovados");
         }
         vacationRequestRepository.delete(request);
     }
 
     private VacationRequest findEntity(Long id) {
         return vacationRequestRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Vacation request not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido de férias não encontrado: " + id));
     }
 
     /*
@@ -143,7 +143,7 @@ public class VacationRequestService {
     private void validateManagerOwnership(User manager, VacationRequest request) {
         User vacationUser = request.getUser();
         if (vacationUser.getManager() == null || !vacationUser.getManager().getId().equals(manager.getId())) {
-            throw new ForbiddenException("Manager can only approve/reject vacations of their own collaborators");
+            throw new ForbiddenException("Manager só pode aprovar/rejeitar férias dos seus colaboradores directos");
         }
     }
 }
