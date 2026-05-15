@@ -1,5 +1,13 @@
 import { getToken, clearSession } from "./auth";
 
+/*
+ * Cliente HTTP centralizado — todos os pedidos ao backend passam por aqui.
+ * Injeta o token JWT automaticamente e trata erros de forma consistente:
+ *   401 → limpa sessão e redireciona para login
+ *   outros erros → lança Error com a mensagem do backend
+ *   204 → devolve undefined (sem body para parsear)
+ */
+
 const BASE = process.env.NEXT_PUBLIC_API_URL + "/api/v1";
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -13,6 +21,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 	const res = await fetch(BASE + path, { ...options, headers });
 
 	if (res.status === 401) {
+		// sessão expirada ou inválida — ka pode continuar autenticado
 		clearSession();
 		window.location.href = "/login";
 		throw new Error("Unauthorized");

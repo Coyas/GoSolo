@@ -7,6 +7,13 @@ export type AuthSession = {
 
 const KEY = "gosolo_session";
 
+/*
+ * Gestão de sessão no localStorage — guarda o token JWT e os dados do utilizador.
+ * A sessão é validada em cada acesso: se o token estiver expirado é removida
+ * automaticamente, sem precisar de chamada ao backend.
+ */
+
+// decode do payload JWT (base64) para ler o campo exp — não valida assinatura
 function isTokenExpired(token: string): boolean {
 	try {
 		const payload = JSON.parse(atob(token.split(".")[1]));
@@ -17,7 +24,7 @@ function isTokenExpired(token: string): boolean {
 }
 
 export function getSession(): AuthSession | null {
-	if (typeof window === "undefined") return null;
+	if (typeof window === "undefined") return null; // SSR guard
 	const raw = localStorage.getItem(KEY);
 	if (!raw) return null;
 	try {

@@ -59,20 +59,22 @@ export default function VacationRequestsPage() {
 	const canReview = role === "ADMIN" || role === "MANAGER";
 
 	useEffect(() => {
-		const load = () =>
-			api
-				.get<VacationRequest[]>("/vacation-requests")
-				.then(setRequests)
-				.catch(() => {});
-
+		// carregamento inicial — erros aqui aparecem no UI
 		api
 			.get<VacationRequest[]>("/vacation-requests")
 			.then(setRequests)
 			.catch((e) => setError(e.message))
 			.finally(() => setLoading(false));
 
+		// polling a cada 15s para refletir aprovações e rejeições feitas por outros
+		// erros silenciosos — ka interrompe a sessão do utilizador
+		const load = () =>
+			api
+				.get<VacationRequest[]>("/vacation-requests")
+				.then(setRequests)
+				.catch(() => {});
 		const id = setInterval(load, 15_000);
-		return () => clearInterval(id);
+		return () => clearInterval(id); // limpa o intervalo quando o componente é destruído
 	}, []);
 
 	const filtered = useMemo(() => {

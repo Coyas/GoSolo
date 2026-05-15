@@ -43,17 +43,19 @@ export default function UsersPage() {
       router.replace("/dashboard");
       return;
     }
-    const load = () =>
-      api.get<User[]>("/users").then(setUsers).catch(() => {});
 
+    // carregamento inicial — erros aqui aparecem no UI
     api
       .get<User[]>("/users")
       .then(setUsers)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
 
+    // polling a cada 15s para refletir novos colaboradores criados por outros admins
+    const load = () =>
+      api.get<User[]>("/users").then(setUsers).catch(() => {});
     const id = setInterval(load, 15_000);
-    return () => clearInterval(id);
+    return () => clearInterval(id); // limpa o intervalo quando o componente é destruído
   }, [router]);
 
   const filtered = useMemo(() => {
