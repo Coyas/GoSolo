@@ -36,6 +36,12 @@ type User = {
 
 const PAGE_SIZE = 8;
 
+const ROLE_LABEL: Record<string, string> = {
+  ADMIN: "Admin",
+  MANAGER: "Manager",
+  COLLABORATOR: "Collaborator",
+};
+
 export default function UsersPage() {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
@@ -51,26 +57,21 @@ export default function UsersPage() {
       return;
     }
 
-    // carregamento inicial — erros aqui aparecem no UI
     api
       .get<User[]>("/users")
       .then(setUsers)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
 
-    // polling a cada 15s para refletir novos colaboradores criados por outros admins
-    const load = () =>
-      api.get<User[]>("/users").then(setUsers).catch(() => {});
+    const load = () => api.get<User[]>("/users").then(setUsers).catch(() => {});
     const id = setInterval(load, 15_000);
-    return () => clearInterval(id); // limpa o intervalo quando o componente é destruído
+    return () => clearInterval(id);
   }, [router]);
 
   const filtered = useMemo(() => {
     const s = search.toLowerCase();
     return users.filter((u) => {
-      const matchesSearch = !s ||
-        u.name.toLowerCase().includes(s) ||
-        u.email.toLowerCase().includes(s);
+      const matchesSearch = !s || u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s);
       const matchesRole = !roleFilter || u.role === roleFilter;
       return matchesSearch && matchesRole;
     });
@@ -97,22 +98,22 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">Colaboradores</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{filtered.length} utilizadores</p>
+      <div className="flex items-center justify-between pb-5 border-b">
+        <div className="space-y-0.5">
+          <h1 className="text-xl font-semibold tracking-tight">Colaboradores</h1>
+          <p className="text-sm text-muted-foreground">{filtered.length} utilizadores</p>
         </div>
-        <Link href="/dashboard/users/new" className={cn(buttonVariants())}>
+        <Link href="/dashboard/users/new" className={cn(buttonVariants({ size: "sm" }))}>
           Novo colaborador
         </Link>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         <Input
           placeholder="Pesquisar por nome ou email..."
           value={search}
           onChange={(e) => handleFilterChange(setSearch)(e.target.value)}
-          className="max-w-xs"
+          className="max-w-xs h-8 text-sm"
         />
         <Select
           value={roleFilter || "ALL"}
@@ -136,44 +137,49 @@ export default function UsersPage() {
         </Alert>
       )}
 
-      <div className="rounded-lg border bg-card">
+      <div className="rounded-lg border overflow-hidden bg-white">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Manager</TableHead>
-              <TableHead className="text-right">Acções</TableHead>
+            <TableRow className="bg-slate-50 hover:bg-slate-50 border-b">
+              <TableHead className="font-medium text-xs uppercase tracking-wide text-muted-foreground">Nome</TableHead>
+              <TableHead className="font-medium text-xs uppercase tracking-wide text-muted-foreground">Email</TableHead>
+              <TableHead className="font-medium text-xs uppercase tracking-wide text-muted-foreground">Role</TableHead>
+              <TableHead className="font-medium text-xs uppercase tracking-wide text-muted-foreground">Manager</TableHead>
+              <TableHead className="text-right" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading && (
               <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="py-12 text-center text-sm text-muted-foreground">
                   A carregar...
                 </TableCell>
               </TableRow>
             )}
             {!loading && pageItems.map((u) => (
-              <TableRow key={u.id}>
-                <TableCell className="font-medium">{u.name}</TableCell>
-                <TableCell className="text-muted-foreground">{u.email}</TableCell>
+              <TableRow key={u.id} className="hover:bg-slate-50/60">
+                <TableCell className="font-medium text-sm">{u.name}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{u.email}</TableCell>
                 <TableCell>
-                  <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-                    {u.role}
+                  <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium text-foreground bg-muted/50">
+                    {ROLE_LABEL[u.role] ?? u.role}
                   </span>
                 </TableCell>
-                <TableCell className="text-muted-foreground">{u.managerName ?? "—"}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">{u.managerName ?? "—"}</TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1">
                     <Link
                       href={`/dashboard/users/${u.id}`}
-                      className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+                      className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "h-7 text-xs")}
                     >
                       Editar
                     </Link>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(u.id)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => handleDelete(u.id)}
+                    >
                       Remover
                     </Button>
                   </div>
@@ -182,7 +188,7 @@ export default function UsersPage() {
             ))}
             {!loading && filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="py-12 text-center text-sm text-muted-foreground">
                   Nenhum colaborador encontrado.
                 </TableCell>
               </TableRow>
@@ -193,24 +199,14 @@ export default function UsersPage() {
 
       {!loading && totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             Página {currentPage} de {totalPages}
           </span>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage === 1}
-              onClick={() => setPage((p) => p - 1)}
-            >
+            <Button variant="outline" size="sm" disabled={currentPage === 1} onClick={() => setPage((p) => p - 1)}>
               Anterior
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage === totalPages}
-              onClick={() => setPage((p) => p + 1)}
-            >
+            <Button variant="outline" size="sm" disabled={currentPage === totalPages} onClick={() => setPage((p) => p + 1)}>
               Seguinte
             </Button>
           </div>

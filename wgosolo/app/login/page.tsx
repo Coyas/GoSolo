@@ -7,8 +7,6 @@ import { saveSession } from "../lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type LoginFields = {
   email: string;
@@ -51,13 +49,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/40">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">GoSolo</CardTitle>
-          <CardDescription>Sistema de Gestão de Férias</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen flex">
+      {/* Painel esquerdo — branding */}
+      <div className="hidden lg:flex lg:w-5/12 bg-slate-900 flex-col justify-between p-12 select-none">
+        <span className="text-white text-lg font-semibold tracking-tight">GoSolo</span>
+        <div className="space-y-4">
+          <p className="text-white text-3xl font-semibold tracking-tight leading-snug">
+            Gestão de Férias<br />simples e directa.
+          </p>
+          <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
+            Plataforma interna da TaskFlow para gestão de colaboradores e pedidos de férias.
+          </p>
+        </div>
+        <p className="text-slate-600 text-xs">© 2026 TaskFlow Ltda.</p>
+      </div>
+
+      {/* Painel direito — formulário */}
+      <div className="flex-1 flex items-center justify-center px-8">
+        <div className="w-full max-w-sm space-y-8">
+          <div className="space-y-1.5">
+            <h1 className="text-2xl font-semibold tracking-tight">Bem-vindo</h1>
+            <p className="text-sm text-muted-foreground">
+              Introduz as tuas credenciais para continuar.
+            </p>
+          </div>
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
@@ -90,17 +106,15 @@ export default function LoginPage() {
             </div>
 
             {serverError && (
-              <Alert variant="destructive">
-                <AlertDescription>{serverError}</AlertDescription>
-              </Alert>
+              <p className="text-sm text-destructive">{serverError}</p>
             )}
 
             <Button type="submit" disabled={isSubmitting} className="w-full">
               {isSubmitting ? "A entrar..." : "Entrar"}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

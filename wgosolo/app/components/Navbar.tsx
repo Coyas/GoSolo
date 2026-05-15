@@ -3,10 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { clearSession, getRole, getUserName } from "../lib/auth";
-import { buttonVariants } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 export default function Navbar() {
@@ -28,31 +25,39 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="border-b bg-background">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-3">
-        <span className="text-base font-semibold">GoSolo</span>
-        <Separator orientation="vertical" className="h-5" />
-        <nav className="flex gap-1 flex-1">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={cn(
-                buttonVariants({
-                  variant: pathname.startsWith(l.href) ? "secondary" : "ghost",
-                  size: "sm",
-                })
-              )}
-            >
-              {l.label}
-            </Link>
-          ))}
+    <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+      <div className="mx-auto flex max-w-6xl items-center h-14 px-6 gap-6">
+        <span className="text-sm font-semibold tracking-tight shrink-0">GoSolo</span>
+
+        <nav className="flex items-center gap-1 flex-1">
+          {links.map((l) => {
+            const active = pathname.startsWith(l.href);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={cn(
+                  "px-3 py-1.5 text-sm rounded-md transition-colors",
+                  active
+                    ? "text-foreground font-medium bg-muted"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                )}
+              >
+                {l.label}
+              </Link>
+            );
+          })}
         </nav>
-        <div className="flex items-center gap-3">
-          {name && <span className="text-sm font-medium">{name}</span>}
-          <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-            {role}
-          </span>
+
+        <div className="flex items-center gap-4 shrink-0">
+          {name && (
+            <div className="text-right leading-none">
+              <p className="text-sm font-medium">{name}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {role ? role.charAt(0) + role.slice(1).toLowerCase() : ""}
+              </p>
+            </div>
+          )}
           <Button variant="outline" size="sm" onClick={logout}>
             Sair
           </Button>
