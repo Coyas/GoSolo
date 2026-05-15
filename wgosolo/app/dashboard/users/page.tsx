@@ -11,6 +11,13 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -107,16 +114,20 @@ export default function UsersPage() {
           onChange={(e) => handleFilterChange(setSearch)(e.target.value)}
           className="max-w-xs"
         />
-        <select
-          value={roleFilter}
-          onChange={(e) => handleFilterChange(setRoleFilter)(e.target.value)}
-          className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        <Select
+          value={roleFilter || "ALL"}
+          onValueChange={(v) => handleFilterChange(setRoleFilter)(v === "ALL" ? "" : (v ?? ""))}
         >
-          <option value="">Todos os roles</option>
-          <option value="ADMIN">Admin</option>
-          <option value="MANAGER">Manager</option>
-          <option value="COLLABORATOR">Collaborator</option>
-        </select>
+          <SelectTrigger className="min-w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">Todos os roles</SelectItem>
+            <SelectItem value="ADMIN">Admin</SelectItem>
+            <SelectItem value="MANAGER">Manager</SelectItem>
+            <SelectItem value="COLLABORATOR">Collaborator</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {error && (

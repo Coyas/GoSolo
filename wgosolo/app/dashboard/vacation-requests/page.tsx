@@ -10,6 +10,13 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import {
 	Table,
 	TableBody,
 	TableCell,
@@ -159,16 +166,20 @@ export default function VacationRequestsPage() {
 					onChange={(e) => handleFilterChange(setSearch)(e.target.value)}
 					className="max-w-xs"
 				/>
-				<select
-					value={statusFilter}
-					onChange={(e) => handleFilterChange(setStatusFilter)(e.target.value)}
-					className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+				<Select
+					value={statusFilter || "ALL"}
+					onValueChange={(v) => handleFilterChange(setStatusFilter)(v === "ALL" ? "" : (v ?? ""))}
 				>
-					<option value="">Todos os estados</option>
-					<option value="PENDING">Pendente</option>
-					<option value="APPROVED">Aprovado</option>
-					<option value="REJECTED">Rejeitado</option>
-				</select>
+					<SelectTrigger className="min-w-36">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="ALL">Todos os estados</SelectItem>
+						<SelectItem value="PENDING">Pendente</SelectItem>
+						<SelectItem value="APPROVED">Aprovado</SelectItem>
+						<SelectItem value="REJECTED">Rejeitado</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 
 			{error && (

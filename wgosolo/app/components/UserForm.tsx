@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -34,11 +35,12 @@ type UserFields = {
 
 type Props = {
   userId?: number;
+  title?: string;
 };
 
 const ROLES = ["ADMIN", "MANAGER", "COLLABORATOR"];
 
-export default function UserForm({ userId }: Props) {
+export default function UserForm({ userId, title }: Props) {
   const router = useRouter();
   const isEdit = Boolean(userId);
   const [managers, setManagers] = useState<UserData[]>([]);
@@ -95,111 +97,120 @@ export default function UserForm({ userId }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-lg space-y-5">
-      <div className="space-y-1.5">
-        <Label htmlFor="name">Nome</Label>
-        <Input
-          id="name"
-          aria-invalid={!!errors.name}
-          {...register("name", { required: "Nome obrigatório" })}
-        />
-        {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          aria-invalid={!!errors.email}
-          {...register("email", {
-            required: "Email obrigatório",
-            pattern: { value: /\S+@\S+\.\S+/, message: "Email inválido" },
-          })}
-        />
-        {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="password">
-          Password{" "}
-          {isEdit && (
-            <span className="text-muted-foreground font-normal">(deixar vazio para manter)</span>
-          )}
-        </Label>
-        <Input
-          id="password"
-          type="password"
-          aria-invalid={!!errors.password}
-          {...register("password", {
-            validate: (v) =>
-              isEdit || v.length >= 6 || "Password deve ter pelo menos 6 caracteres",
-          })}
-        />
-        {errors.password && (
-          <p className="text-xs text-destructive">{errors.password.message}</p>
-        )}
-      </div>
-
-      <div className="space-y-1.5">
-        <Label>Role</Label>
-        <Controller
-          name="role"
-          control={control}
-          rules={{ required: true }}
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={(v) => field.onChange(v ?? field.value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ROLES.map((r) => (
-                  <SelectItem key={r} value={r}>{r}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label>Manager</Label>
-        <Controller
-          name="managerId"
-          control={control}
-          render={({ field }) => (
-            <Select
-              value={field.value}
-              onValueChange={(v) => field.onChange(!v || v === "none" ? "" : v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="— sem manager —" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">— sem manager —</SelectItem>
-                {managers.map((m) => (
-                  <SelectItem key={m.id} value={String(m.id)}>{m.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </div>
-
-      {serverError && (
-        <Alert variant="destructive">
-          <AlertDescription>{serverError}</AlertDescription>
-        </Alert>
+    <Card>
+      {title && (
+        <CardHeader className="border-b">
+          <CardTitle className="text-base">{title}</CardTitle>
+        </CardHeader>
       )}
+      <CardContent className={title ? "pt-6" : "pt-4"}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <div className="space-y-1.5">
+            <Label htmlFor="name">Nome</Label>
+            <Input
+              id="name"
+              aria-invalid={!!errors.name}
+              {...register("name", { required: "Nome obrigatório" })}
+            />
+            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+          </div>
 
-      <div className="flex gap-3">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "A guardar..." : isEdit ? "Guardar alterações" : "Criar colaborador"}
-        </Button>
-        <Button type="button" variant="outline" onClick={() => router.push("/dashboard/users")}>
-          Cancelar
-        </Button>
-      </div>
-    </form>
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              aria-invalid={!!errors.email}
+              {...register("email", {
+                required: "Email obrigatório",
+                pattern: { value: /\S+@\S+\.\S+/, message: "Email inválido" },
+              })}
+            />
+            {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="password">
+              Password{" "}
+              {isEdit && (
+                <span className="text-muted-foreground font-normal">(deixar vazio para manter)</span>
+              )}
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              aria-invalid={!!errors.password}
+              {...register("password", {
+                validate: (v) =>
+                  isEdit || v.length >= 6 || "Password deve ter pelo menos 6 caracteres",
+              })}
+            />
+            {errors.password && (
+              <p className="text-xs text-destructive">{errors.password.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Role</Label>
+            <Controller
+              name="role"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={(v) => field.onChange(v ?? field.value)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ROLES.map((r) => (
+                      <SelectItem key={r} value={r}>{r}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Manager</Label>
+            <Controller
+              name="managerId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={(v) => field.onChange(!v || v === "none" ? "" : v)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="— sem manager —" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">— sem manager —</SelectItem>
+                    {managers.map((m) => (
+                      <SelectItem key={m.id} value={String(m.id)}>{m.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
+
+          {serverError && (
+            <Alert variant="destructive">
+              <AlertDescription>{serverError}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="flex gap-3 pt-1">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "A guardar..." : isEdit ? "Guardar alterações" : "Criar colaborador"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => router.push("/dashboard/users")}>
+              Cancelar
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
