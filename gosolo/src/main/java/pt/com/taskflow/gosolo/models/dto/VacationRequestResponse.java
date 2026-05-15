@@ -19,6 +19,12 @@ public class VacationRequestResponse {
     private LocalDateTime reviewedAt;
     private LocalDateTime createdAt;
 
+    /*
+     * Mapeia a entidade para DTO — deve ser chamado dentro de @Transactional
+     * para evitar LazyInitializationException nos campos user e reviewedBy.
+     * As datas são String (não LocalDate) porque o Jackson 3 do Spring Boot 4
+     * não serializa LocalDate via properties — resolve-se assim, simples.
+     */
     public static VacationRequestResponse from(VacationRequest v) {
         VacationRequestResponse dto = new VacationRequestResponse();
         dto.id = v.getId();

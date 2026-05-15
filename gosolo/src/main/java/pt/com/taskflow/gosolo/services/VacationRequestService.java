@@ -16,6 +16,12 @@ import pt.com.taskflow.gosolo.repositories.VacationRequestRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/*
+ * Serviço central do sistema — aqui está toda a lógica de negócio
+ * relacionada com pedidos de férias: criar, aprovar, rejeitar, cancelar.
+ * O mapeamento para DTO é feito dentro de @Transactional para evitar
+ * LazyInitializationException nos relacionamentos LAZY do JPA.
+ */
 @Service
 @Transactional
 public class VacationRequestService {
@@ -42,6 +48,7 @@ public class VacationRequestService {
 
     @Transactional(readOnly = true)
     public List<VacationRequestResponse> findByManagerId(Long managerId) {
+        // manager vê as suas próprias férias e as dos seus colaboradores (OR na query)
         return vacationRequestRepository.findByUserManagerIdOrUserId(managerId, managerId).stream()
                 .map(VacationRequestResponse::from).toList();
     }
@@ -52,6 +59,8 @@ public class VacationRequestService {
     }
 
     public VacationRequestResponse create(VacationRequestRequest request) {
+        // PENDING e APPROVED contam como sobreposição — só REJECTED é ignorado pelo
+        // sistema
         if (vacationRequestRepository.existsOverlappingActiveVacation(
                 request.getUserId(), request.getStartDate(), request.getEndDate())) {
             throw new BusinessException("Já existe um pedido de férias para este período");
@@ -80,12 +89,15 @@ public class VacationRequestService {
     public VacationRequestResponse approve(Long id, Long reviewerId) {
         VacationRequest request = findEntity(id);
         User reviewer = userService.findById(reviewerId);
+        // manager só pode aprovar os seus colaboradores — admin aprova tudo
         if (reviewer.getRole() == Role.MANAGER) {
             validateManagerOwnership(reviewer, request);
         }
         if (request.getStatus() != VacationStatus.PENDING) {
             throw new BusinessException("Only pending requests can be approved");
         }
+        // regra global do PDF: não pode ter dois colaboradores aprovados no mesmo
+        // período
         if (vacationRequestRepository.existsOverlappingApprovedVacationGlobal(
                 request.getId(), request.getStartDate(), request.getEndDate())) {
             throw new BusinessException("Já existe um colaborador de férias neste período");
@@ -124,6 +136,10 @@ public class VacationRequestService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vacation request not found: " + id));
     }
 
+    /*
+     * Garante que o manager só gere os seus próprios colaboradores.
+     * Se o colaborador ka tem manager ou o manager é diferente — forbidden.
+     */
     private void validateManagerOwnership(User manager, VacationRequest request) {
         User vacationUser = request.getUser();
         if (vacationUser.getManager() == null || !vacationUser.getManager().getId().equals(manager.getId())) {

@@ -11,6 +11,10 @@ import pt.com.taskflow.gosolo.models.dto.ErrorResponse;
 
 import java.util.stream.Collectors;
 
+/*
+ * Trata todas as exceções da aplicação num sítio só — ka deixa vazar stack traces
+ * para o cliente. Cada tipo de exceção tem o seu status HTTP adequado.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

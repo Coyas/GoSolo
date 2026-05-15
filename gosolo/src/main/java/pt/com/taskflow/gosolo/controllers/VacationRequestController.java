@@ -59,6 +59,8 @@ public class VacationRequestController {
     public ResponseEntity<VacationRequestResponse> create(@Valid @RequestBody VacationRequestRequest body,
             Authentication auth) {
         User currentUser = currentUser(auth);
+        // admin pode criar pedidos para outros utilizadores — os restantes só para si
+        // próprios
         if (currentUser.getRole() != Role.ADMIN) {
             body.setUserId(currentUser.getId());
         }
@@ -108,6 +110,10 @@ public class VacationRequestController {
         return userService.findByEmail(auth.getName());
     }
 
+    /*
+     * Admin acede a tudo. Manager acede às suas férias e às dos seus colaboradores.
+     * Colaborador só vê os seus próprios pedidos — sem exceção, txeu simples.
+     */
     private void validateReadAccess(User currentUser, VacationRequestResponse request) {
         if (currentUser.getRole() == Role.ADMIN)
             return;
@@ -124,6 +130,7 @@ public class VacationRequestController {
         }
     }
 
+    // write access: admin faz tudo, os restantes só nos seus próprios pedidos
     private void validateWriteAccess(User currentUser, VacationRequestResponse request) {
         if (currentUser.getRole() == Role.ADMIN)
             return;
