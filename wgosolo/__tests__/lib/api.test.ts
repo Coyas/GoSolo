@@ -26,6 +26,11 @@ delete (window as any).location;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).location = { href: "" };
 
+// suprime o console.error de navegação do jsdom — ka é um erro real, é uma limitação do ambiente de teste
+jest.spyOn(console, "error").mockImplementation((err: unknown) => {
+	if (err instanceof Error && err.message.includes("Not implemented: navigation")) return;
+});
+
 // helper que cria uma response falsa com o formato da Fetch API
 function makeResponse(status: number, body?: unknown) {
 	return {
