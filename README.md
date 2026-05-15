@@ -28,6 +28,14 @@ Sistema interno da TaskFlow Ltda. para gestão de colaboradores e pedidos de fé
 git clone https://github.com/Coyas/GoSolo.git
 cd GoSolo
 cp .env.example .env
+./start.sh
+```
+
+O `start.sh` corre os testes de backend e frontend antes de subir os serviços. Se algum teste falhar, o compose não sobe e qualquer serviço já em execução é parado com `docker compose down`.
+
+Para subir directamente sem testes:
+
+```bash
 docker compose up --build
 ```
 
@@ -261,12 +269,12 @@ cd wgosolo
 npm test
 ```
 
-16 testes no total:
+15 testes no total:
 
 | Ficheiro | Testes |
 |---|---|
 | `auth.test.ts` | 9 — getSession (válida, expirada, malformed), saveSession, clearSession, getToken, getUserId |
-| `api.test.ts` | 7 — Authorization header, 200, erro backend, 401 limpa sessão, 204 → undefined, POST body |
+| `api.test.ts` | 6 — Authorization header, sem sessão, 200, erro backend, 204 → undefined, POST body |
 
 ---
 
