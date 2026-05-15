@@ -4,11 +4,11 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  const router = useRouter();
+	const router = useRouter();
 
-  useEffect(() => {
-    router.replace("/dashboard/vacation-requests");
-  }, [router]);
+	useEffect(() => {
+		router.replace("/dashboard/vacation-requests");
+	}, [router]);
 
-  return null;
+	return null;
 }
